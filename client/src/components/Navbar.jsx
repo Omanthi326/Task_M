@@ -28,7 +28,7 @@ function Header({
   const fetchTasks = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/v1/task/mytask",
+        "http://13.48.137.48:4000/api/v1/task/mytask",
         { 
           withCredentials: true,
           headers: {
