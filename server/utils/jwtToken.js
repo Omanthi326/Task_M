@@ -1,31 +1,57 @@
+/**
+ * Utility function to send JWT token in cookie and JSON response
+ * @param {string} message - Success message
+ * @param {object} user - User object
+ * @param {object} res - Express response object
+ * @param {number} statusCode - HTTP status code
+ */
 export const sendToken = (message, user, res, statusCode) => {
-  // Generate the JWT token using the getJWTToken method
-  const token = user.getJWTToken();
+  try {
+    // 1. Generate JWT token
+    const token = user.getJWTToken();
 
-  // Ensure that COOKIE_EXPIRE is properly set in the environment variables
-  const cookieExpire = parseInt(process.env.COOKIE_EXPIRE, 10);
+    // 2. Validate and set cookie expiration (default: 7 days)
+    const cookieExpireDays = parseInt(process.env.COOKIE_EXPIRE, 10) || 7;
+    if (isNaN(cookieExpireDays) || cookieExpireDays <= 0) {
+      throw new Error('Invalid COOKIE_EXPIRE environment variable');
+    }
+    const cookieExpireMs = cookieExpireDays * 24 * 60 * 60 * 1000;
 
-  if (isNaN(cookieExpire) || cookieExpire <= 0) {
-    return res.status(500).json({
+    // 3. Configure cookie options
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      expires: new Date(Date.now() + cookieExpireMs),
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+      ...(isProduction && { domain: '13.48.137.48' }) // Only set domain in production
+    };
+
+    // 4. Clear any existing token first
+    res.clearCookie('token');
+
+    // 5. Set new token cookie and send response
+    res.status(statusCode)
+      .cookie('token', token, cookieOptions)
+      .json({
+        success: true,
+        message,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+          // Include only necessary user fields
+        }
+        // Omit token from JSON response if not needed by client
+      });
+
+  } catch (error) {
+    console.error('Error in sendToken:', error);
+    res.status(500).json({
       success: false,
-      message: "Invalid cookie expiration time",
+      message: 'Internal server error during authentication'
     });
   }
-
-  // Set options for the cookie
-  const options = {
-    expires: new Date(Date.now() + cookieExpire * 24 * 60 * 60 * 1000), // Cookie expires in the specified days
-    httpOnly: true, // Ensures the cookie can't be accessed via JavaScript (mitigates XSS)
-    secure: process.env.NODE_ENV === 'production',// Ensures cookies are sent only over HTTPS in production
-    domain: '.13.48.137.48',
-    sameSite: 'none',
-  };
-
-  // Send the token as a cookie and respond with JSON
-  res.status(statusCode).cookie('token', token, options).json({
-    success: true,
-    user,
-    message,
-    token,
-  });
 };
