@@ -13,25 +13,22 @@ export const sendToken = (message, user, res, statusCode) => {
     // 2. Validate and set cookie expiration (default: 7 days)
     const cookieExpireDays = parseInt(process.env.COOKIE_EXPIRE, 10) || 7;
     if (isNaN(cookieExpireDays) || cookieExpireDays <= 0) {
-      throw new Error('Invalid COOKIE_EXPIRE environment variable');
+      console.warn('Invalid COOKIE_EXPIRE environment variable, using default of 7 days');
     }
     const cookieExpireMs = cookieExpireDays * 24 * 60 * 60 * 1000;
 
-    // 3. Configure cookie options
-    const isProduction = process.env.NODE_ENV === 'production';
+    // 3. Configure cookie options - Simplified for development
     const cookieOptions = {
       expires: new Date(Date.now() + cookieExpireMs),
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: '/',
-      ...(isProduction && { domain: '13.48.137.48' }) // Only set domain in production
+      secure: false, // Set to false for development
+      sameSite: 'lax',
+      path: '/'
     };
 
-    // 4. Clear any existing token first
-    res.clearCookie('token');
+    console.log("Setting token cookie with options:", cookieOptions);
 
-    // 5. Set new token cookie and send response
+    // 4. Set new token cookie and send response
     res.status(statusCode)
       .cookie('token', token, cookieOptions)
       .json({
@@ -41,10 +38,9 @@ export const sendToken = (message, user, res, statusCode) => {
           _id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
-          // Include only necessary user fields
+          phone: user.phone,
+          avatar: user.avatar
         }
-        // Omit token from JSON response if not needed by client
       });
 
   } catch (error) {
