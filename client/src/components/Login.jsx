@@ -11,34 +11,26 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-     try {
-  const response = await axios.post(
-    "http://13.48.137.48:4000/api/v1/user/login",
-    { email, password },
-    {
-      withCredentials: true,
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      }
-    }
-  );
-  
-  setEmail("");
-  setPassword("");
-  setIsAuthenticated(true);
-  toast.success(response.data.message);
-  
-  // Add a small delay before redirect to ensure cookie is set
-  setTimeout(() => {
-    window.location.href = "/"; // Full page reload to ensure cookie is sent
-  }, 500);
-  
-} catch (error) {
-  console.error("Login error:", error);
-  toast.error(error.response?.data?.message || "Login failed");
-}
-      
+    axios
+      .post(
+        "http://13.48.137.48:4000/api/v1/user/login",
+        { email, password },
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+      .then((res) => {
+        setEmail("");
+        setPassword("");
+        setIsAuthenticated(true);
+        toast.success(res.data.message);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error(error.response.data.message);
+      });
+  };
 
   if (isAuthenticated) {
     return <Navigate to={"/"} />;
