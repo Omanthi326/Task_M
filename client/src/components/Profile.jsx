@@ -67,7 +67,7 @@ const Profile = ({ user, isAuthenticated, setUser }) => {
 
     try {
       const response = await axios.put(
-        `http://13.48.137.48/:4000/api/v1/user/update`, // Make sure this endpoint exists
+        `http://13.48.137.48:4000/api/v1/user/update`, // Make sure this endpoint exists
         formData,
         { withCredentials: true }
       );
