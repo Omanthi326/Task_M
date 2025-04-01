@@ -17,7 +17,7 @@ const UpdateTaskModal = ({
   useEffect(() => {
     const getSingleTask = async () => {
       await axios
-        .get(`http://13.48.137.48/:4000/api/v1/task/single/${id}`, {
+        .get(`http://13.48.137.48:4000/api/v1/task/single/${id}`, {
           withCredentials: true,
         })
         .then((res) => {
