@@ -18,7 +18,7 @@ const Home = ({ isAuthenticated, tasks, setTasks, taskTitle }) => {
 
   const deleteTask = async (id) => {
     await axios
-      .delete(`http://localhost:4000/api/v1/task/delete/${id}`, {
+      .delete(`http://13.48.137.48:4000/api/v1/task/delete/${id}`, {
         withCredentials: true,
       })
       .then((res) => {
