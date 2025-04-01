@@ -53,7 +53,7 @@ function Header({
   const handleLogout = async () => {
     try {
       const { data } = await axios.get(
-        "http://13.48.137.48/:4000/api/v1/user/logout",
+        "http://13.48.137.48:4000/api/v1/user/logout",
         { 
           withCredentials: true,
           headers: {
