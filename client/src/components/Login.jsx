@@ -13,7 +13,7 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
     e.preventDefault();
     axios
       .post(
-        "http://13.48.137.48/:4000/api/v1/user/login",
+        "http://13.48.137.48:4000/api/v1/user/login",
         { email, password },
         {
           withCredentials: true,
