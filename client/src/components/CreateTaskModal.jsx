@@ -14,7 +14,7 @@ const CreateTaskModal = ({
   const handleCreateTask = async () => {
     await axios
       .post(
-        "http://localhost:4000/api/v1/task/post",
+        "http://13.48.137.48:4000/api/v1/task/post",
         { title, description },
         {
           withCredentials: true,
