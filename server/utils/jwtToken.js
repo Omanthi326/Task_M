@@ -16,7 +16,9 @@ export const sendToken = (message, user, res, statusCode) => {
   const options = {
     expires: new Date(Date.now() + cookieExpire * 24 * 60 * 60 * 1000), // Cookie expires in the specified days
     httpOnly: true, // Ensures the cookie can't be accessed via JavaScript (mitigates XSS)
-    secure: process.env.NODE_ENV === 'production', // Ensures cookies are sent only over HTTPS in production
+    secure: process.env.NODE_ENV === 'production',// Ensures cookies are sent only over HTTPS in production
+    domain: '.13.48.137.48',
+    sameSite: 'none',
   };
 
   // Send the token as a cookie and respond with JSON
