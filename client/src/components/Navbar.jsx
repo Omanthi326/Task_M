@@ -15,9 +15,10 @@ function Header({
   setTaskTitle,
 }) {
   const [allTasks, setAllTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // For navigation on unauthorized errors
 
-  // Fetch tasks from the server when the component mounts
+  // Fetch tasks from the server when the component mounts or auth state changes
   useEffect(() => {
     if (isAuthenticated) {
       fetchTasks();
@@ -26,7 +27,11 @@ function Header({
 
   // Fetch tasks from the server
   const fetchTasks = async () => {
+    if (!isAuthenticated) return;
+    
+    setLoading(true);
     try {
+      console.log("Fetching tasks...");
       const response = await axios.get(
         "http://13.48.137.48:4000/api/v1/task/mytask",
         { 
@@ -36,22 +41,28 @@ function Header({
           }
         }
       );
+      console.log("Tasks fetched successfully:", response.data);
       setAllTasks(response.data.tasks);
       setTasks(response.data.tasks); // Update tasks with fetched tasks
     } catch (error) {
       console.error("Error fetching tasks:", error);
+      
+      // Handle authentication errors specifically
       if (error.response && (error.response.status === 401 || error.response.status === 400)) {
         toast.error("Session expired. Please log in again.");
-        setIsAuthenticated(false);
-        navigate("/login");
+        // Force logout on authentication errors
+        handleLogout();
       } else {
         toast.error("Failed to fetch tasks. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(
         "http://13.48.137.48:4000/api/v1/user/logout",
         { 
@@ -62,13 +73,23 @@ function Header({
         }
       );
       
-      // Set authentication state to false immediately
+      // Clear local tasks state
+      setAllTasks([]);
+      setTasks([]);
+      
+      // Set authentication state to false
       setIsAuthenticated(false);
       
-      toast.success(data.message);
+      toast.success(data.message || "Logged out successfully");
       navigate("/login"); // Redirect to login page after logging out
     } catch (error) {
-      toast.error(error.response?.data?.message || "Logout failed!");
+      console.error("Logout error:", error);
+      // Even if logout fails on server, clear auth state on client
+      setIsAuthenticated(false);
+      toast.error(error.response?.data?.message || "Logout failed, but session ended");
+      navigate("/login");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -191,6 +212,7 @@ function Header({
                 title="Filter Tasks"
                 id="basic-nav-dropdown"
                 className="nav-link"
+                disabled={loading || !isAuthenticated}
               >
                 <NavDropdown.Item
                   onClick={() => filterTasks("all")}
@@ -226,8 +248,9 @@ function Header({
               <Button
                 className="btn-logout"
                 onClick={handleLogout}
+                disabled={loading}
               >
-                LOGOUT
+                {loading ? "Please wait..." : "LOGOUT"}
               </Button>
              
             </Nav>
