@@ -16,7 +16,7 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
     
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/v1/user/login",
+        "http://13.48.137.48:4000/api/v1/user/login",
         { email, password },
         {
           withCredentials: true,
