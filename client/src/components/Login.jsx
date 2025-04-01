@@ -3,33 +3,47 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import PropTypes from 'prop-types'; // Import PropTypes
+import PropTypes from 'prop-types';
 
 function Login({ isAuthenticated, setIsAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    axios
-      .post(
+    setIsLoading(true);
+    
+    try {
+      const res = await axios.post(
         "http://13.48.137.48:4000/api/v1/user/login",
         { email, password },
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
+          timeout: 5000 // Add a timeout to prevent long waiting periods
         }
-      )
-      .then((res) => {
-        setEmail("");
-        setPassword("");
-        setIsAuthenticated(true);
-        toast.success(res.data.message);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error(error.response.data.message);
-      });
+      );
+      
+      setEmail("");
+      setPassword("");
+      setIsAuthenticated(true);
+      toast.success(res.data.message);
+    } catch (error) {
+      console.error("Login error:", error);
+      
+      if (error.code === "ERR_NETWORK" || error.code === "ECONNABORTED") {
+        toast.error("Cannot connect to the server. Please try again later or contact support.");
+      } else if (error.response) {
+        // Server responded with an error status code
+        toast.error(error.response.data.message || "Login failed. Please check your credentials.");
+      } else {
+        // Something else went wrong
+        toast.error("Login failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isAuthenticated) {
@@ -148,7 +162,7 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
 
           <Form.Group className="text-center mb-4">
             <Form.Label className="text-white">
-              Dont have an account?{" "}
+              Don't have an account?{" "}
               <Link to={"/register"} className="text-decoration-none text-light fw-bold">
                 Register Now
               </Link>
@@ -159,8 +173,9 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
             variant="primary"
             type="submit"
             className="w-100 text-light fw-bold fs-5 rounded-3 py-2"
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
         </Form>
       </Container>
