@@ -3,33 +3,41 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import PropTypes from 'prop-types'; // Import PropTypes
+import PropTypes from 'prop-types';
 
 function Login({ isAuthenticated, setIsAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    axios
-      .post(
+    setLoading(true);
+    
+    try {
+      console.log("Attempting login...");
+      const response = await axios.post(
         "http://13.48.137.48:4000/api/v1/user/login",
         { email, password },
         {
           withCredentials: true,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json"
+          },
         }
-      )
-      .then((res) => {
-        setEmail("");
-        setPassword("");
-        setIsAuthenticated(true);
-        toast.success(res.data.message);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error(error.response.data.message);
-      });
+      );
+      
+      console.log("Login response:", response.data);
+      setEmail("");
+      setPassword("");
+      setIsAuthenticated(true);
+      toast.success(response.data.message || "Login successful!");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (isAuthenticated) {
@@ -131,6 +139,7 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-3 form-control-custom"
               required
+              disabled={loading}
             />
           </Form.Group>
 
@@ -143,12 +152,13 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-3 form-control-custom"
               required
+              disabled={loading}
             />
           </Form.Group>
 
           <Form.Group className="text-center mb-4">
             <Form.Label className="text-white">
-              Dont have an account?{" "}
+              Don't have an account?{" "}
               <Link to={"/register"} className="text-decoration-none text-light fw-bold">
                 Register Now
               </Link>
@@ -159,8 +169,9 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
             variant="primary"
             type="submit"
             className="w-100 text-light fw-bold fs-5 rounded-3 py-2"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </Form>
       </Container>
