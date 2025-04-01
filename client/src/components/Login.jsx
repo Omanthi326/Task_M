@@ -11,15 +11,17 @@ function Login({ isAuthenticated, setIsAuthenticated }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    axios
-      .post(
-        "http://13.48.137.48:4000/api/v1/user/login",
-        { email, password },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      )
+   const response = await axios.post(
+  "http://13.48.137.48:4000/api/v1/user/login",
+  { email, password },
+  {
+    withCredentials: true,
+    headers: { 
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }
+  }
+);
       .then((res) => {
         setEmail("");
         setPassword("");
