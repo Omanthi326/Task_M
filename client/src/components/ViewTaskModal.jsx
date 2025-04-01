@@ -9,7 +9,7 @@ const ViewTaskModal = ({ showViewModal, handleViewModalClose, id }) => {
   useEffect(() => {
     const getSingleTask = async () => {
       try {
-        const res = await axios.get(`http://localhost:4000/api/v1/task/single/${id}`, {
+        const res = await axios.get(`http://13.48.137.48:4000/api/v1/task/single/${id}`, {
           withCredentials: true,
         });
         setTask(res.data.task);
