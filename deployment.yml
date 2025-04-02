@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskmanager-app
+  labels:
+    app: taskmanager
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskmanager
+  template:
+    metadata:
+      labels:
+        app: taskmanager
+    spec:
+      containers:
+      - name: taskmanager-frontend
+        image: omanthi/taskmanager-frontend:latest
+        ports:
+        - containerPort: 5173
+        env:
+        - name: VITE_API_URL
+          value: http://taskmanager-backend-service:4000/api/v1
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+      - name: taskmanager-backend
+        image: omanthi/taskmanager-backend:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PORT
+          value: "4000"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: taskmanager-secrets
+              key: mongo-uri
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: taskmanager-secrets
+              key: jwt-secret
+        - name: COOKIE_EXPIRE
+          value: "7"
+        - name: CLOUDINARY_CLIENT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: taskmanager-secrets
+              key: cloudinary-name
+        - name: CLOUDINARY_CLIENT_API
+          valueFrom:
+            secretKeyRef:
+              name: taskmanager-secrets
+              key: cloudinary-api
+        - name: CLOUDINARY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: taskmanager-secrets
+              key: cloudinary-secret
+        - name: FRONTEND_URL
+          value: "http://taskmanager-service"
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
