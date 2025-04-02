@@ -13,7 +13,7 @@ dotenv.config({ path: "./config/config.env" });
 
 app.use(
   cors({
-    origin: ["http://13.48.137.48:5173",'http://frontend:5173'],
+    origin: ["http://13.48.137.48:5173",'http://frontend:5173','http://a2a8eec28fede463291ce644027c795f-720687216.eu-north-1.elb.amazonaws.com'],
     methods: ["GET", "PUT", "DELETE", "POST"],
     credentials: true,
   })
