@@ -1,23 +1,32 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: taskmanager-frontend
+  name: taskmanager-service
+  labels:
+    app: taskmanager
 spec:
   type: LoadBalancer
   ports:
   - port: 80
     targetPort: 5173
+    name: frontend
+  - port: 4000
+    targetPort: 4000
+    name: backend
   selector:
-    app: taskmanager-frontend
-
+    app: taskmanager
 ---
+# Separate service for backend-to-backend communication
 apiVersion: v1
 kind: Service
 metadata:
-  name: taskmanager-backend
+  name: taskmanager-backend-service
+  labels:
+    app: taskmanager-backend
 spec:
+  type: ClusterIP
   ports:
   - port: 4000
     targetPort: 4000
   selector:
-    app: taskmanager-backend
+    app: taskmanager
