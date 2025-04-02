@@ -4,29 +4,38 @@ metadata:
   name: taskmanager-service
   labels:
     app: taskmanager
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # Use Network Load Balancer for better performance
+    service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
+  - name: frontend
+    port: 80
     targetPort: 5173
-    name: frontend
-  - port: 4000
+    protocol: TCP
+  - name: backend
+    port: 4000
     targetPort: 4000
-    name: backend
+    protocol: TCP
   selector:
     app: taskmanager
 ---
-# Separate service for backend-to-backend communication
 apiVersion: v1
 kind: Service
 metadata:
   name: taskmanager-backend-service
   labels:
     app: taskmanager-backend
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
 spec:
   type: ClusterIP
   ports:
-  - port: 4000
+  - name: backend
+    port: 4000
     targetPort: 4000
+    protocol: TCP
   selector:
     app: taskmanager
