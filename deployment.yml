@@ -1,27 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: taskmanager-app
-  labels:
-    app: taskmanager
+  name: taskmanager-frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: taskmanager
+      app: taskmanager-frontend
   template:
     metadata:
       labels:
-        app: taskmanager
+        app: taskmanager-frontend
     spec:
       containers:
-      - name: taskmanager-frontend
+      - name: frontend
         image: omanthi/taskmanager-frontend:latest
         ports:
         - containerPort: 5173
         env:
         - name: VITE_API_URL
-          value: http://taskmanager-backend-service:4000/api/v1
+          value: "http://taskmanager-backend:4000/api/v1"
         resources:
           limits:
             cpu: "300m"
@@ -29,7 +27,24 @@ spec:
           requests:
             cpu: "100m"
             memory: "256Mi"
-      - name: taskmanager-backend
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskmanager-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskmanager-backend
+  template:
+    metadata:
+      labels:
+        app: taskmanager-backend
+    spec:
+      containers:
+      - name: backend
         image: omanthi/taskmanager-backend:latest
         ports:
         - containerPort: 4000
@@ -64,7 +79,7 @@ spec:
               name: taskmanager-secrets
               key: cloudinary-secret
         - name: FRONTEND_URL
-          value: "http://taskmanager-service"
+          value: "http://taskmanager-frontend:5173"
         resources:
           limits:
             cpu: "500m"
