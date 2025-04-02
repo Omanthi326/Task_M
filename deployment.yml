@@ -21,7 +21,7 @@ spec:
         - containerPort: 5173
         env:
         - name: VITE_API_URL
-          value: http://taskmanager-backend-service:4000/api/v1
+          value: "/api/v1"
         resources:
           limits:
             cpu: "300m"
@@ -64,7 +64,7 @@ spec:
               name: taskmanager-secrets
               key: cloudinary-secret
         - name: FRONTEND_URL
-          value: "http://taskmanager-service"
+          value: "*"
         - name: CORS_ORIGIN
           value: "*"
         resources:
